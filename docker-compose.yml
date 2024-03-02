@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - minio
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+
+
+  minio:
+    image: minio/minio
+    entrypoint: sh
+    command: -c 'mkdir -p /data/mybucket && /usr/bin/minio server /data'
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCES_KEY}
+      MINIO_SECRET_KEY: ${MINIO_ACCES_KEY_ID}
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio-data:/data
+
+volumes:
+  minio-data:
+
